@@ -24,12 +24,35 @@ DISTRIBUTED_ARGS=(
     --master_port $MASTER_PORT
 )
 
-MODEL_ARGS=(
+MODEL_ARGS_old=(
     --use-mcore-models
     --disable-bias-linear
     --seq-length 1024
     --max-position-embeddings 1024
     --num-layers 3
+    --hidden-size 4096
+    --ffn-hidden-size 14336
+    --num-attention-heads 32
+    --init-method-std 0.006
+    --attention-dropout 0.0
+    --hidden-dropout 0.0
+    --normalization RMSNorm
+    --position-embedding-type rope
+    --swiglu
+    --untie-embeddings-and-output-weights
+    --group-query-attention
+    --num-query-groups 8
+    --no-masked-softmax-fusion
+    --no-position-embedding
+    --rotary-base 1000000
+)
+
+MODEL_ARGS=(
+    --use-mcore-models
+    --disable-bias-linear
+    --seq-length 256
+    --max-position-embeddings 2048
+    --num-layers 16
     --hidden-size 4096
     --ffn-hidden-size 14336
     --num-attention-heads 32
@@ -81,8 +104,8 @@ TRAINING_ARGS=(
 )
 
 MODEL_PARALLEL_ARGS=(
-    --tensor-model-parallel-size 1
-    --pipeline-model-parallel-size 1
+    --tensor-model-parallel-size 2
+    --pipeline-model-parallel-size 4
     --use-distributed-optimizer
 )
 
