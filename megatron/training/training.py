@@ -1227,7 +1227,10 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
         with_stack=True)
         prof.start()
 
+    # lyh add on 11.09
     total_start_time = time.time()
+    excluded_time = 0.0
+              
     while iteration < args.train_iters:
         if args.profile and torch.distributed.get_rank() in args.profile_ranks:
             if args.use_pytorch_profiler:
@@ -1277,6 +1280,9 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
         num_fp_ops = num_floating_point_operations(args, batch_size)
         num_floating_point_operations_so_far += num_fp_ops
         total_flops += num_fp_ops
+
+        # lyh Logging,evalute开始 - 记录 Logging等 开始时间
+        exclude_start_time = time.time()
 
         # Send heartbeat to FT package and update timeouts.
         if args.enable_ft_package:
@@ -1408,6 +1414,10 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
             saved_checkpoint = True
             timers('interval-time', log_level=0).start(barrier=True)
 
+        #         # lyh 记录排除的结束时间
+        exclude_end_time = time.time()
+        excluded_time += exclude_end_time - exclude_start_time
+        
         # Exiting based on duration
         if args.exit_duration_in_mins:
             train_time = (time.time() - _TRAIN_START_TIME) / 60.0
@@ -1451,12 +1461,14 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
             if args.manual_gc_interval != 0 and iteration % args.manual_gc_interval == 0:
                 gc.collect()
 
+    # lyh add on 11.09
+    # 记录训练循环的总结束时间
     total_end_time = time.time()
     # 计算总训练时间（排除 Logging 和 Evaluation等 部分）
     total_duration = total_end_time - total_start_time
-    print(total_duration)
-    print(total_duration)
-    print(total_duration)
+    pure_train_time = total_duration - excluded_time
+    print(f"-------------------Total pure training time: {pure_train_time:.2f} seconds--------------------------------")
+    print()
 
     one_logger_utils.track_e2e_metrics()
 
