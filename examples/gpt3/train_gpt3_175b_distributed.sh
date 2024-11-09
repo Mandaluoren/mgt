@@ -12,11 +12,17 @@ NUM_NODES=1
 NODE_RANK=0
 WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 
-CHECKPOINT_PATH=$1 #<Specify path>
-TENSORBOARD_LOGS_PATH=$2 #<Specify path>
-VOCAB_FILE=$3 #<Specify path to file>/gpt2-vocab.json
-MERGE_FILE=$4 #<Specify path to file>/gpt2-merges.txt
-DATA_PATH=$5 #<Specify path and file prefix>_text_document
+#CHECKPOINT_PATH=$1 #<Specify path>
+#TENSORBOARD_LOGS_PATH=$2 #<Specify path>
+#VOCAB_FILE=$3 #<Specify path to file>/gpt2-vocab.json
+#MERGE_FILE=$4 #<Specify path to file>/gpt2-merges.txt
+#DATA_PATH=$5 #<Specify path and file prefix>_text_document
+
+CHECKPOINT_PATH=/kimchou/Megatron-LM/output/checkout
+TENSORBOARD_LOGS_PATH=/kimchou/Megatron-LM/output/log
+VOCAB_FILE=/kimchou/Megatron-LM/gpt_datasets/gpt2-vocab.json
+MERGE_FILE=/kimchou/Megatron-LM/gpt_datasets/gpt2-merges.txt
+DATA_PATH=/kimchou/Megatron-LM/gpt_datasets/my_gpt2_text_document
 
 DISTRIBUTED_ARGS=(
     --nproc_per_node $GPUS_PER_NODE 
@@ -25,12 +31,20 @@ DISTRIBUTED_ARGS=(
     --master_port $MASTER_PORT
 )
 
-GPT_MODEL_ARGS=(
+GPT_MODEL_ARGS_111111111111111=(
     --num-layers 96 
     --hidden-size 12288 
     --num-attention-heads 96 
     --seq-length 2048 
     --max-position-embeddings 2048 
+)
+
+GPT_MODEL_ARGS=(
+    --num-layers 12
+    --hidden-size 768
+    --num-attention-heads 12
+    --seq-length 1024
+    --max-position-embeddings 1024
 )
 
 TRAINING_ARGS=(
@@ -52,8 +66,8 @@ TRAINING_ARGS=(
 )
 
 MODEL_PARALLEL_ARGS=(
-	--tensor-model-parallel-size 8 
-	--pipeline-model-parallel-size 16 
+	--tensor-model-parallel-size 2 
+	--pipeline-model-parallel-size 4
 )
 
 DATA_ARGS=(

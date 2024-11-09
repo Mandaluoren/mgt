@@ -78,6 +78,8 @@ from . import one_logger_utils
 
 from . import ft_integration
 
+import time
+
 stimer = StragglerDetector()
 
 
@@ -1225,6 +1227,7 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
         with_stack=True)
         prof.start()
 
+    total_start_time = time.time()
     while iteration < args.train_iters:
         if args.profile and torch.distributed.get_rank() in args.profile_ranks:
             if args.use_pytorch_profiler:
@@ -1447,6 +1450,13 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
         if args.manual_gc:
             if args.manual_gc_interval != 0 and iteration % args.manual_gc_interval == 0:
                 gc.collect()
+
+    total_end_time = time.time()
+    # 计算总训练时间（排除 Logging 和 Evaluation等 部分）
+    total_duration = total_end_time - total_start_time
+    print(total_duration)
+    print(total_duration)
+    print(total_duration)
 
     one_logger_utils.track_e2e_metrics()
 
